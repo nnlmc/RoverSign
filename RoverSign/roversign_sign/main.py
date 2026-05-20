@@ -367,22 +367,24 @@ async def single_daily_sign(
     all_msgs: Dict,
 ):
     im = await sign_in(uid, ck)
+    is_new = "已签到" not in im
     if gid == "on":
-        if qid not in private_msgs:
-            private_msgs[qid] = []
-        private_msgs[qid].append(
-            {"bot_id": bot_id, "uid": uid, "msg": [MessageSegment.text(im)]}
-        )
         if "失败" in im:
             all_msgs["failed"] += 1
-        elif "已签到" not in im:
+        elif is_new:
             all_msgs["success"] += 1
+        if is_new:
+            if qid not in private_msgs:
+                private_msgs[qid] = []
+            private_msgs[qid].append(
+                {"bot_id": bot_id, "uid": uid, "msg": [MessageSegment.text(im)]}
+            )
     elif gid == "off":
         if "失败" in im:
             all_msgs["failed"] += 1
-        elif "已签到" not in im:
+        elif is_new:
             all_msgs["success"] += 1
-    else:
+    elif is_new:
         # 向群消息推送列表添加这个群
         if gid not in group_msgs:
             group_msgs[gid] = {
@@ -401,7 +403,7 @@ async def single_daily_sign(
                     MessageSegment.text(im),
                 ]
             )
-        elif "已签到" not in im:
+        else:
             all_msgs["success"] += 1
             group_msgs[gid]["success"] += 1
 
@@ -420,22 +422,24 @@ async def single_pgr_daily_sign(
     im = await pgr_sign_in(uid, ck)
     if im is None:
         return
+    is_new = "已签到" not in im
     if gid == "on":
-        if qid not in private_msgs:
-            private_msgs[qid] = []
-        private_msgs[qid].append(
-            {"bot_id": bot_id, "uid": uid, "msg": [MessageSegment.text(im)]}
-        )
         if "失败" in im:
             all_msgs["failed"] += 1
-        elif "已签到" not in im:
+        elif is_new:
             all_msgs["success"] += 1
+        if is_new:
+            if qid not in private_msgs:
+                private_msgs[qid] = []
+            private_msgs[qid].append(
+                {"bot_id": bot_id, "uid": uid, "msg": [MessageSegment.text(im)]}
+            )
     elif gid == "off":
         if "失败" in im:
             all_msgs["failed"] += 1
-        elif "已签到" not in im:
+        elif is_new:
             all_msgs["success"] += 1
-    else:
+    elif is_new:
         # 向群消息推送列表添加这个群
         if gid not in group_msgs:
             group_msgs[gid] = {
@@ -454,7 +458,7 @@ async def single_pgr_daily_sign(
                     MessageSegment.text(f"[战双] {im}"),
                 ]
             )
-        elif "已签到" not in im:
+        else:
             all_msgs["success"] += 1
             group_msgs[gid]["success"] += 1
 
