@@ -153,8 +153,8 @@ async def rover_sign_recheck_all(bot: Bot, ev: Event):
 
 @waves_sign_all.on_regex(("^(订阅|取消订阅)签到结果$"))
 async def rover_sign_result(bot: Bot, ev: Event):
-    if ev.bot_id != "onebot":
-        logger.debug(f"非onebot禁止订阅签到结果 【{ev.bot_id}】")
+    if ev.bot_id != "onebot" and ev.bot_id != "feishu" and ev.bot_id != "lark" and ev.bot_id != "qqgroup":
+        logger.debug(f"非onebot/feishu/lark/qqgroup禁止订阅签到结果 【{ev.bot_id}】")
         return
 
     if "取消" in ev.raw_text:
