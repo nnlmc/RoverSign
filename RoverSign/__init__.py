@@ -64,13 +64,13 @@ try:
         await _flush_activity_buffer()
         logger.info("[库洛签到·插件] 活跃度缓冲区刷写完成")
 
-    async def rover_bot_check_hook(group_id: str, bot_self_id: str):
+    async def rover_bot_check_hook(group_id: str, bot_id: str, bot_self_id: str):
         """RoverSign 的 bot 检测 hook"""
-        logger.debug(f"[库洛签到·Hook] bot_check_hook 被调用: group_id={group_id}, bot_self_id={bot_self_id}")
+        logger.debug(f"[库洛签到·Hook] bot_check_hook 被调用: group_id={group_id}, bot_id={bot_id}, bot_self_id={bot_self_id}")
 
         if group_id:
             try:
-                await RoverSubscribe.check_and_update_bot(group_id, bot_self_id)
+                await RoverSubscribe.check_and_update_bot(group_id, bot_id, bot_self_id)
             except Exception as e:
                 logger.warning(f"[库洛签到·Hook] Bot检测失败: {e}")
 

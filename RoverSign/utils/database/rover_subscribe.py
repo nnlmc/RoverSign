@@ -36,6 +36,7 @@ class RoverSubscribe(BaseModel, table=True):
         cls: Type[T_RoverSubscribe],
         session: AsyncSession,
         group_id: str,
+        bot_id: str,
         bot_self_id: str,
     ) -> bool:
         """检查并更新群组的bot_self_id
@@ -44,6 +45,7 @@ class RoverSubscribe(BaseModel, table=True):
 
         Args:
             group_id: 群组ID
+            bot_id: 平台 bot_id（onebot / qqgroup / ...）
             bot_self_id: 新的bot_self_id
 
         Returns:
@@ -55,7 +57,7 @@ class RoverSubscribe(BaseModel, table=True):
         current_time = int(time.time())
 
         logger.debug(
-            f"[库洛签到·订阅] check_and_update_bot 被调用: group_id={group_id}, bot_self_id={bot_self_id}"
+            f"[库洛签到·订阅] check_and_update_bot 被调用: group_id={group_id}, bot_id={bot_id}, bot_self_id={bot_self_id}"
         )
 
         # 查询现有记录
@@ -93,13 +95,15 @@ class RoverSubscribe(BaseModel, table=True):
                     )
 
                 # 更新记录
+                existing.bot_id = bot_id
                 existing.bot_self_id = bot_self_id
                 existing.updated_at = current_time
                 session.add(existing)
 
                 return True
             else:
-                # bot未变化，只更新时间
+                # bot未变化，只更新时间和平台标识
+                existing.bot_id = bot_id
                 existing.updated_at = current_time
                 session.add(existing)
                 return False
@@ -109,7 +113,7 @@ class RoverSubscribe(BaseModel, table=True):
             )
             # 使用 INSERT ... ON CONFLICT DO UPDATE 原子操作，避免并发 INSERT 竞态导致索引损坏
             stmt = sqlite_insert(cls).values(
-                bot_id="onebot",
+                bot_id=bot_id,
                 user_id="",
                 group_id=group_id,
                 bot_self_id=bot_self_id,
@@ -118,6 +122,7 @@ class RoverSubscribe(BaseModel, table=True):
             stmt = stmt.on_conflict_do_update(
                 index_elements=["group_id"],
                 set_={
+                    "bot_id": stmt.excluded.bot_id,
                     "bot_self_id": stmt.excluded.bot_self_id,
                     "updated_at": stmt.excluded.updated_at,
                 },
