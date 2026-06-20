@@ -355,12 +355,16 @@ async def rover_auto_sign_task():
         # 获取所有用户（SigninMaster 和定时任务都需要）
         _all_user_list: List[WavesUser] = await WavesUser.get_waves_all_user()
 
-        # 获取活跃用户（仅用于定时任务）
+        # 获取活跃用户集合（仅签到活跃账号 / 全部签到跳过不活跃 共用）
         sign_active_only = RoverSignConfig.get_config("SignActiveUserOnly").data
-        if sign_active_only:
+        master_skip_inactive = bool(
+            RoverSignConfig.get_config("SigninMaster").data
+            and RoverSignConfig.get_config("SigninMasterSkipInactive").data
+        )
+        if sign_active_only or master_skip_inactive:
             active_days = RoverSignConfig.get_config("ActiveUserDays").data
             _active_user_set = set(u.uid for u in await WavesUser.get_active_waves_user(active_days))
-            logger.info(f"[库洛签到·签到] 定时任务仅签到活跃账号，活跃天数：{active_days}，活跃用户数：{len(_active_user_set)}")
+            logger.info(f"[库洛签到·签到] 活跃过滤已开启，活跃天数：{active_days}，活跃用户数：{len(_active_user_set)}")
         else:
             _active_user_set = None
             logger.info(f"[库洛签到·签到] 定时任务签到所有账号")
@@ -402,7 +406,12 @@ async def rover_auto_sign_task():
                 continue
 
             if RoverSignConfig.get_config("SigninMaster").data:
-                # 如果 SigninMaster 为 True，不判断活跃，直接添加到 user_list 中
+                if (
+                    master_skip_inactive
+                    and _active_user_set is not None
+                    and user.uid not in _active_user_set
+                ):
+                    continue
                 need_user_list.append(user)
                 if not is_signed_bbs:
                     bbs_user.add(user.uid)

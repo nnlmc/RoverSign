@@ -29,6 +29,11 @@ CONFIG_DEFAULT: Dict[str, GSC] = {
         "开启后自动帮登录的人签到",
         False,
     ),
+    "SigninMasterSkipInactive": GsBoolConfig(
+        "全部签到时跳过不活跃账号",
+        "开启「全部开启签到」时，仍跳过不活跃账号（依赖活跃账号认定天数）",
+        False,
+    ),
     "SchedSignin": GsBoolConfig(
         "定时签到",
         "定时签到",
