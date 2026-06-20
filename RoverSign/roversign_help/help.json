@@ -13,7 +13,7 @@
       {
         "name": "开启自动签到",
         "desc": "开启每天的自动签到功能",
-        "eg": "开启自动签到",
+        "eg": "开启(鸣潮/战双)自动签到",
         "need_ck": true,
         "need_sk": false,
         "need_admin": false
