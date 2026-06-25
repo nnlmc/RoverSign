@@ -41,6 +41,7 @@ Args:
 """,
 )
 async def rover_user_sign(bot: Bot, ev: Event):
+    await bot.send("唔…签到的事我记下了，乖乖等一下，别戳啦，戳太多次我可是会装睡不理你的哦~")
     msg = await rover_sign_up_handler(bot, ev)
     return await bot.send(msg)
 
